@@ -1,2 +1,4 @@
 venv
 .DS_Store
+sql_app.db
+.idea/
