@@ -1,10 +1,12 @@
 import abc
 from typing import List, Optional
-from sqlalchemy import Engine, Row
-from sqlalchemy.orm import Session
+
+from sqlalchemy import Row
 from sqlalchemy import select, update
+from sqlalchemy.orm import Session
 
 from database import Account
+from .abstract_sql_repository import AbstractSQLRepository
 
 
 class AccountsRepository(abc.ABC):
@@ -30,11 +32,7 @@ class AccountsRepository(abc.ABC):
         pass
 
 
-class SQLAccountsRepository:
-    engine: Engine
-
-    def __init__(self, engine: Engine):
-        self.engine = engine
+class SQLAccountsRepository(AccountsRepository, AbstractSQLRepository):
 
     def save(self, account: Account):
         with Session(self.engine) as session:
@@ -57,7 +55,7 @@ class SQLAccountsRepository:
             connection.commit()
 
     @staticmethod
-    def __map_row_to_object(row: Row) -> Account:
+    def _map_row_to_object(row: Row) -> Account:
         return Account(address=row[0], nonce=int(row[1]), code_hash=row[2], storage_hash=row[3], balance=int(row[4]))
 
     def get(self, address: str) -> Optional[Account]:
@@ -66,10 +64,10 @@ class SQLAccountsRepository:
             account_row = connection.execute(expression).first()
             if not account_row:
                 return None
-            return self.__map_row_to_object(account_row)
+            return self._map_row_to_object(account_row)
 
     def list(self) -> List[Account]:
         with self.engine.connect() as connection:
             expression = select(Account)
             account_rows = connection.execute(expression).fetchall()
-            return list(map(self.__map_row_to_object, account_rows))
+            return list(map(self._map_row_to_object, account_rows))
