@@ -1,6 +1,6 @@
 from typing import Dict
 
-from forms.tokens import DeployTokenForm, TransferTokenForm
+from forms.transactions import DeployTokenForm, TransferTokenForm
 from main import app, accounts_repository, tokens_repository, token_balances_repository
 from forms.transactions import TransferTransactionModel, SupplyTransactionModel
 
