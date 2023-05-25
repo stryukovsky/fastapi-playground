@@ -23,6 +23,14 @@ class TokenBalancesRepository(abc.ABC):
     def apply_transfer_transaction(self, sender: Account, from_balance: TokenBalance, to_balance: TokenBalance):
         pass
 
+    @abc.abstractmethod
+    def get_balances_by_token(self, token: str) -> List[TokenBalance]:
+        pass
+
+    @abc.abstractmethod
+    def get_balances_by_holder(self, holder: str) -> List[TokenBalance]:
+        pass
+
 
 class SQLTokenBalancesRepository(TokenBalancesRepository, AbstractSQLRepository):
     def create(self, token: str, account: str):
@@ -58,3 +66,15 @@ class SQLTokenBalancesRepository(TokenBalancesRepository, AbstractSQLRepository)
             connection.execute(apply_to_balance)
             connection.execute(apply_nonce)
             connection.commit()
+
+    def get_balances_by_token(self, token: str) -> List[TokenBalance]:
+        with self.engine.connect() as connection:
+            expression = select(TokenBalance).where(TokenBalance.token_address == token)
+            rows = connection.execute(expression).fetchall()
+            return list(map(self._map_row_to_object, rows))
+
+    def get_balances_by_holder(self, holder: str) -> List[TokenBalance]:
+        with self.engine.connect() as connection:
+            expression = select(TokenBalance).where(TokenBalance.account_address == holder)
+            rows = connection.execute(expression).fetchall()
+            return list(map(self._map_row_to_object, rows))

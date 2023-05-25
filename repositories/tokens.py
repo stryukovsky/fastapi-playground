@@ -1,11 +1,10 @@
 import abc
-from typing import Optional
+from typing import Optional, List
 
-from sqlalchemy import Engine, select, Row, update
+from sqlalchemy import select, Row, update
 from sqlalchemy.orm import Session
 
 from database import Account, Token, TokenBalance
-
 from .abstract_sql_repository import AbstractSQLRepository
 
 
@@ -27,8 +26,18 @@ class TokensRepository(abc.ABC):
     def get_by_ticker(self, ticker: str) -> Optional[Token]:
         pass
 
+    @abc.abstractmethod
+    def list(self) -> List[Token]:
+        pass
+
 
 class SQLTokensRepository(TokensRepository, AbstractSQLRepository):
+
+    def list(self) -> List[Token]:
+        with self.engine.connect() as connection:
+            expression = select(Token)
+            rows = connection.execute(expression).fetchall()
+            return list(map(self._map_row_to_object, rows))
 
     def deploy_token(self, deployer: Account, address: str, name: str, ticker: str, initial_supply: int):
         with Session(self.engine) as session:
