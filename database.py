@@ -20,9 +20,6 @@ class Account(Base):
     storage_hash: Mapped[str] = mapped_column(String(66), default="")
     balance: Mapped[int] = mapped_column(BigInteger(), default=0)
 
-    owned_tokens: Mapped[List["Token"]] = relationship(back_populates="owner", cascade="all, delete-orphan")
-    token_balances: Mapped[List["TokenBalance"]] = relationship(back_populates="account", cascade="all, delete-orphan")
-
 
 class Token(Base):
     __tablename__ = "token"
@@ -33,9 +30,6 @@ class Token(Base):
     total_supply: Mapped[int] = mapped_column(BigInteger(), default=0)
 
     owner_address: Mapped[str] = mapped_column(ForeignKey("account.address"))
-    owner: Mapped["Account"] = relationship(back_populates="owned_tokens")
-
-    account_balances: Mapped[List["TokenBalance"]] = relationship(back_populates="token", cascade="all, delete-orphan")
 
 
 class TokenBalance(Base):
@@ -44,10 +38,7 @@ class TokenBalance(Base):
     id: Mapped[int] = mapped_column(Integer(), primary_key=True)
     amount: Mapped[int] = mapped_column(BigInteger(), default=0)
 
-    token: Mapped["Token"] = relationship(back_populates="account_balances")
     token_address: Mapped[str] = mapped_column(ForeignKey("token.address"))
-
-    account: Mapped["Account"] = relationship(back_populates="token_balances")
     account_address: Mapped[str] = mapped_column(ForeignKey("account.address"))
 
 

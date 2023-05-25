@@ -1,6 +1,6 @@
 from typing import Dict
 
-from forms.accounts import CreateAccountForm, GetNonceForm
+from forms.accounts import CreateAccountForm
 from main import accounts_repository
 from main import app
 
