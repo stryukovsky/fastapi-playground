@@ -9,7 +9,3 @@ class CreateAccountForm(BaseModel):
     @validator("address")
     def validate_address(cls, value: str) -> str:
         return util_validate_address("address", value)
-
-
-class GetNonceForm(CreateAccountForm):
-    pass
